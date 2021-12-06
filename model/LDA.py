@@ -46,6 +46,7 @@ from dash.dependencies import Input, Output, State
 def lemmatize_stemming(text):
     return WordNetLemmatizer().lemmatize(text, pos='v')
 def preprocess_abstract(text):
+    redundant = ['abstract', 'purpose', 'paper', 'goal', 'usepackage', 'cod']
     result = []
     for token in gensim.utils.simple_preprocess(text):
         if token not in gensim.parsing.preprocessing.STOPWORDS and len(token) > 3 and token not in redundant:
@@ -68,7 +69,7 @@ def display_topics_list(model, feature_names, no_top_words):
     for topic_idx, topic in enumerate(model.components_):
         topic_list.append(" ".join([feature_names[i] for i in topic.argsort()[:-no_top_words - 1:-1]]))
     return topic_list
-def create_top_list(data_frame, num_topics, threshold):
+def create_top_list(data_frame, num_topics, threshold, filtered):
     top_5s = []
     the_filter = filtered[threshold][num_topics]
     for topic in range(num_topics):
@@ -79,8 +80,9 @@ def create_top_list(data_frame, num_topics, threshold):
     return top_5s
 
 def LDA_model(data, hdsi):
-    #df = pd.read_csv(data)
-    df = pd.DataFrame.from_dict(data, orient="index").transpose()
+    df = pd.read_csv(data)
+    print('hi')
+    #df = pd.DataFrame.from_dict(data, orient="index").transpose()
     authors = df[['authors']]
 
 
@@ -166,8 +168,8 @@ def LDA_model(data, hdsi):
     # In[48]:
 
 
-    #hdsi = pd.read_csv(hdsi)
-    hdsi = pd.DataFrame.from_dict(hdsi, orient="index").transpose()
+    hdsi = pd.read_csv(hdsi)
+    #hdsi = pd.DataFrame.from_dict(hdsi, orient="index").transpose()
     faculty = hdsi[hdsi['Dimensions ID'] != 'no ID']['Dimensions ID']
     #manually adding professors since they do not have dimensions ids
     add = pd.Series(['Aaron McMillan Fraenkel', 'Justin Eldridge'])
@@ -194,9 +196,6 @@ def LDA_model(data, hdsi):
 
 
     # In[53]:
-
-
-    redundant = ['abstract', 'purpose', 'paper', 'goal', 'usepackage', 'cod']
     stemmer = PorterStemmer()
 
     df3['abstract_processed'] = df3['abstract'].apply(preprocess_abstract)
@@ -408,7 +407,7 @@ def LDA_model(data, hdsi):
 
     # In[68]:
     tops = {
-        threshold : {num_topics : create_top_list(dataframes[threshold][num_topics], num_topics, threshold) for num_topics in range(10, 60, 10)} for threshold in [.1]
+        threshold : {num_topics : create_top_list(dataframes[threshold][num_topics], num_topics, threshold, filtered) for num_topics in range(10, 60, 10)} for threshold in [.1]
     }
 
 
