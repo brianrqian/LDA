@@ -25,7 +25,7 @@ RUN apt-get update
 #RUN apt install python3-pip
 #RUN apt-get -y install nmap
 #RUN apt-get -y install aria2
-
+RUN echo 'jupyter notebook "$@"' > /run_jupyter.sh && chmod 755 /run_jupyter.sh
 # 3) install packages using notebook user
 USER jovyan
 #RUN pip install --no-cache-dir -r requirements.txt
@@ -72,10 +72,8 @@ RUN pip install --no-cache-dir IPython
 #RUN pip install --no-cache-dir babypandas
 #RUN pip install --no-cache-dir networkx scipy
 
-#COPY run.py ./run.py
-#WORKDIR /
-COPY model /model
-WORKDIR /model
+COPY src /src
+WORKDIR /src
 
 # Override command to disable running jupyter notebook at launch
 CMD ["python","run.py"]
